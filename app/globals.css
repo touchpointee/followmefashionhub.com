@@ -1,0 +1,364 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: oklch(0.99 0 0);
+  /* preserved */
+  --foreground: oklch(0.1 0 0);
+  /* preserved */
+  --card: oklch(1 0 0);
+  /* preserved */
+  --card-foreground: oklch(0.1 0 0);
+  /* preserved */
+  --popover: oklch(1 0 0);
+  /* preserved */
+  --popover-foreground: oklch(0.1 0 0);
+  /* preserved */
+  --primary: oklch(0 0 0);
+  /* preserved */
+  --primary-foreground: oklch(1 0 0);
+  /* preserved */
+  --secondary: oklch(0.96 0 0);
+  /* preserved */
+  --secondary-foreground: oklch(0.1 0 0);
+  /* preserved */
+  --muted: oklch(0.95 0 0);
+  /* preserved */
+  --muted-foreground: oklch(0.45 0 0);
+  /* preserved */
+  --accent: oklch(0.94 0 0);
+  /* preserved */
+  --accent-foreground: oklch(0.1 0 0);
+  /* preserved */
+  --destructive: oklch(0.577 0.245 27.325);
+  /* preserved */
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  /* preserved */
+  --border: oklch(0.9 0 0);
+  /* preserved */
+  --input: oklch(0.9 0 0);
+  /* preserved */
+  --ring: oklch(0.5 0 0);
+  /* preserved */
+  --chart-1: oklch(0.646 0.222 41.116);
+  /* added from diff */
+  --chart-2: oklch(0.6 0.118 184.704);
+  /* added from diff */
+  --chart-3: oklch(0.398 0.07 227.392);
+  /* added from diff */
+  --chart-4: oklch(0.828 0.189 84.429);
+  /* added from diff */
+  --chart-5: oklch(0.769 0.188 70.08);
+  /* added from diff */
+  --radius: 0.625rem;
+  /* updated from diff */
+  --sidebar: oklch(0.985 0 0);
+  /* added from diff */
+  --sidebar-foreground: oklch(0.145 0 0);
+  /* added from diff */
+  --sidebar-primary: oklch(0.205 0 0);
+  /* added from diff */
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  /* added from diff */
+  --sidebar-accent: oklch(0.97 0 0);
+  /* added from diff */
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  /* added from diff */
+  --sidebar-border: oklch(0.922 0 0);
+  /* added from diff */
+  --sidebar-ring: oklch(0.708 0 0);
+  /* added from diff */
+}
+
+.dark {
+  --background: oklch(0.1 0 0);
+  /* preserved */
+  --foreground: oklch(0.98 0 0);
+  /* preserved */
+  --card: oklch(0.12 0 0);
+  /* preserved */
+  --card-foreground: oklch(0.98 0 0);
+  /* preserved */
+  --popover: oklch(0.12 0 0);
+  /* preserved */
+  --popover-foreground: oklch(0.98 0 0);
+  /* preserved */
+  --primary: oklch(1 0 0);
+  /* preserved */
+  --primary-foreground: oklch(0.1 0 0);
+  /* preserved */
+  --secondary: oklch(0.2 0 0);
+  /* preserved */
+  --secondary-foreground: oklch(0.98 0 0);
+  /* preserved */
+  --muted: oklch(0.2 0 0);
+  /* preserved */
+  --muted-foreground: oklch(0.6 0 0);
+  /* preserved */
+  --accent: oklch(0.2 0 0);
+  /* preserved */
+  --accent-foreground: oklch(0.98 0 0);
+  /* preserved */
+  --destructive: oklch(0.396 0.141 25.723);
+  /* preserved */
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  /* preserved */
+  --border: oklch(0.25 0 0);
+  /* preserved */
+  --input: oklch(0.25 0 0);
+  /* preserved */
+  --ring: oklch(0.5 0 0);
+  /* preserved */
+  --chart-1: oklch(0.488 0.243 264.376);
+  /* added from diff */
+  --chart-2: oklch(0.696 0.17 162.48);
+  /* added from diff */
+  --chart-3: oklch(0.769 0.188 70.08);
+  /* added from diff */
+  --chart-4: oklch(0.627 0.265 303.9);
+  /* added from diff */
+  --chart-5: oklch(0.645 0.246 16.439);
+  /* added from diff */
+  --sidebar: oklch(0.205 0 0);
+  /* added from diff */
+  --sidebar-foreground: oklch(0.985 0 0);
+  /* added from diff */
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  /* added from diff */
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  /* added from diff */
+  --sidebar-accent: oklch(0.269 0 0);
+  /* added from diff */
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  /* added from diff */
+  --sidebar-border: oklch(0.269 0 0);
+  /* added from diff */
+  --sidebar-ring: oklch(0.439 0 0);
+  /* added from diff */
+}
+
+@theme inline {
+  --font-sans: 'Poppins', 'Poppins Fallback', sans-serif;
+  /* preserved */
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  /* preserved */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  /* added from diff */
+  --color-chart-2: var(--chart-2);
+  /* added from diff */
+  --color-chart-3: var(--chart-3);
+  /* added from diff */
+  --color-chart-4: var(--chart-4);
+  /* added from diff */
+  --color-chart-5: var(--chart-5);
+  /* added from diff */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  /* added from diff */
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  /* added from diff */
+  --color-sidebar-primary: var(--sidebar-primary);
+  /* added from diff */
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  /* added from diff */
+  --color-sidebar-accent: var(--sidebar-accent);
+  /* added from diff */
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  /* added from diff */
+  --color-sidebar-border: var(--sidebar-border);
+  /* added from diff */
+  --color-sidebar-ring: var(--sidebar-ring);
+  /* added from diff */
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Animation keyframes */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes text-reveal {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.8s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.8s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.8s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.6s ease-out forwards;
+}
+
+.animate-text-reveal {
+  animation: text-reveal 1s ease-out forwards;
+}
+
+/* Animation delays */
+.delay-100 {
+  animation-delay: 100ms;
+}
+
+.delay-200 {
+  animation-delay: 200ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+.delay-400 {
+  animation-delay: 400ms;
+}
+
+.delay-500 {
+  animation-delay: 500ms;
+}
+
+.delay-600 {
+  animation-delay: 600ms;
+}
+
+.delay-700 {
+  animation-delay: 700ms;
+}
+
+.delay-800 {
+  animation-delay: 800ms;
+}
+
+/* Initially hidden for animation */
+.animate-on-scroll {
+  opacity: 0;
+}
+
+.animate-on-scroll.animated {
+  opacity: 1;
+}
+
+/* Image hover zoom effect */
+.image-hover-zoom {
+  overflow: hidden;
+}
+
+.image-hover-zoom img {
+  transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.image-hover-zoom:hover img {
+  transform: scale(1.05);
+}
+
+/* Text balance for headings */
+.text-balance {
+  text-wrap: balance;
+}
