@@ -5,12 +5,13 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
-import { articles } from '@/lib/journal-data'
+
 import { useScrollAnimation } from '@/hooks/use-scroll-animation'
 
 export default function JournalPage() {
   const [headerRef, headerVisible] = useScrollAnimation<HTMLDivElement>()
   const [heroData, setHeroData] = useState({ title: 'Journal', subtitle: 'Stories, insights, and inspirations from the world of Follow Me Fashion Hub. Explore our thoughts on style, sustainability, and the art of dressing well.', image: '' })
+  const [articles, setArticles] = useState<any[]>([])
 
   useEffect(() => {
     fetch('/api/content/pageHeroes')
@@ -24,6 +25,11 @@ export default function JournalPage() {
           })
         }
       })
+      .catch(console.error)
+
+    fetch('/api/journal')
+      .then(res => res.json())
+      .then(data => setArticles(data || []))
       .catch(console.error)
   }, [])
 
@@ -60,7 +66,7 @@ export default function JournalPage() {
       {/* Featured Article */}
       <section className="bg-background py-20">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <FeaturedArticle article={articles[0]} />
+          {articles.length > 0 && <FeaturedArticle article={articles[0]} />}
         </div>
       </section>
 
@@ -85,7 +91,7 @@ export default function JournalPage() {
   )
 }
 
-function FeaturedArticle({ article }: { article: (typeof articles)[0] }) {
+function FeaturedArticle({ article }: { article: any }) {
   const [ref, isVisible] = useScrollAnimation<HTMLDivElement>()
 
   return (
@@ -145,7 +151,7 @@ function ArticleCard({
   article,
   index,
 }: {
-  article: (typeof articles)[0]
+  article: any
   index: number
 }) {
   const [ref, isVisible] = useScrollAnimation<HTMLElement>()

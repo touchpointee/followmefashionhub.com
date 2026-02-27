@@ -8,8 +8,9 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Image as ImageIcon } from "lucide-react"
+import { Plus } from "lucide-react"
 import Link from 'next/link'
+import FallbackImage from '@/components/admin/fallback-image'
 import connectToDatabase from '@/lib/mongodb'
 import Product from '@/lib/models/Product'
 
@@ -65,15 +66,7 @@ export default async function ProductsPage() {
                                 <TableRow key={product.id}>
                                     <TableCell>
                                         <div className="relative h-12 w-12 rounded-md overflow-hidden bg-muted flex items-center justify-center">
-                                            {product.image ? (
-                                                <img
-                                                    src={product.image}
-                                                    alt={product.name}
-                                                    className="object-cover w-full h-full"
-                                                />
-                                            ) : (
-                                                <ImageIcon className="h-6 w-6 text-muted-foreground opacity-50" />
-                                            )}
+                                            <FallbackImage src={product.image || ''} alt={product.name} />
                                         </div>
                                     </TableCell>
                                     <TableCell className="font-medium">{product.name}</TableCell>
@@ -85,7 +78,9 @@ export default async function ProductsPage() {
                                         </Badge>
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        <Button variant="ghost" size="sm">Edit</Button>
+                                        <Button asChild variant="ghost" size="sm">
+                                            <Link href={`/admin/products/${product.id}`}>Edit</Link>
+                                        </Button>
                                     </TableCell>
                                 </TableRow>
                             ))

@@ -1,12 +1,12 @@
 "use client"
 
-import { use } from 'react'
+import { use, useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
-import { getCollectionById, collections } from '@/lib/collections-data'
+import { getCollections, getCollectionById, Collection } from '@/lib/collections-data'
 import { useScrollAnimation } from '@/hooks/use-scroll-animation'
 import { ArrowLeft } from 'lucide-react'
 
@@ -16,7 +16,20 @@ export default function CollectionDetailPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = use(params)
-  const collection = getCollectionById(slug)
+
+  const [collection, setCollection] = useState<Collection | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    getCollectionById(slug)
+      .then(data => {
+        setCollection(data || null)
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [slug])
+
+  if (loading) return <main className="min-h-screen pt-32"><div className="text-center">Loading...</div></main>
 
   if (!collection) {
     notFound()
@@ -25,7 +38,7 @@ export default function CollectionDetailPage({
   return (
     <main className="min-h-screen">
       <Header />
-      
+
       {/* Hero Section */}
       <CollectionHero collection={collection} />
 
@@ -43,7 +56,7 @@ export default function CollectionDetailPage({
   )
 }
 
-function CollectionHero({ collection }: { collection: ReturnType<typeof getCollectionById> }) {
+function CollectionHero({ collection }: { collection: any }) {
   const [ref, isVisible] = useScrollAnimation<HTMLDivElement>()
 
   if (!collection) return null
@@ -59,7 +72,7 @@ function CollectionHero({ collection }: { collection: ReturnType<typeof getColle
         sizes="100vw"
       />
       <div className="absolute inset-0 bg-primary/50" />
-      
+
       <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
         <div
           ref={ref}
@@ -89,7 +102,7 @@ function CollectionHero({ collection }: { collection: ReturnType<typeof getColle
   )
 }
 
-function CollectionDescription({ collection }: { collection: ReturnType<typeof getCollectionById> }) {
+function CollectionDescription({ collection }: { collection: any }) {
   const [ref, isVisible] = useScrollAnimation<HTMLDivElement>()
 
   if (!collection) return null
@@ -106,7 +119,7 @@ function CollectionDescription({ collection }: { collection: ReturnType<typeof g
           The Vision
         </h2>
         <div className="mt-10 space-y-6">
-          {paragraphs.map((paragraph, index) => (
+          {paragraphs.map((paragraph: string, index: number) => (
             <p
               key={index}
               className="text-sm font-light leading-relaxed text-muted-foreground"
@@ -120,7 +133,7 @@ function CollectionDescription({ collection }: { collection: ReturnType<typeof g
   )
 }
 
-function CollectionGallery({ collection }: { collection: ReturnType<typeof getCollectionById> }) {
+function CollectionGallery({ collection }: { collection: any }) {
   const [headerRef, headerVisible] = useScrollAnimation<HTMLDivElement>()
 
   if (!collection) return null
@@ -178,9 +191,8 @@ function GalleryImage({
   return (
     <div
       ref={ref}
-      className={`image-hover-zoom relative overflow-hidden ${
-        fullWidth ? 'aspect-[21/9]' : 'aspect-[4/5]'
-      } ${isVisible ? 'animate-scale-in' : 'opacity-0'}`}
+      className={`image-hover-zoom relative overflow-hidden ${fullWidth ? 'aspect-[21/9]' : 'aspect-[4/5]'
+        } ${isVisible ? 'animate-scale-in' : 'opacity-0'}`}
       style={{ animationDelay: `${index * 100}ms` }}
     >
       <Image
@@ -196,7 +208,13 @@ function GalleryImage({
 
 function OtherCollections({ currentId }: { currentId: string }) {
   const [headerRef, headerVisible] = useScrollAnimation<HTMLDivElement>()
-  const otherCollections = collections.filter((c) => c.id !== currentId).slice(0, 2)
+  const [otherCollections, setOtherCollections] = useState<any[]>([])
+
+  useEffect(() => {
+    getCollections().then(data => {
+      setOtherCollections(data.filter((c) => c.id !== currentId).slice(0, 2))
+    })
+  }, [currentId])
 
   return (
     <section className="bg-background py-24 md:py-32">
@@ -224,7 +242,7 @@ function OtherCollectionCard({
   collection,
   index,
 }: {
-  collection: (typeof collections)[0]
+  collection: any
   index: number
 }) {
   const [ref, isVisible] = useScrollAnimation<HTMLDivElement>()

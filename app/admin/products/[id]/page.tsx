@@ -41,10 +41,12 @@ function ImagePreview({ file, currentUrl }: { file: File | null, currentUrl?: st
     )
 }
 
-
-export default function AddProductPage() {
+export default function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter()
+    const { id } = React.use(params)
+
     const [loading, setLoading] = useState(false)
+    const [fetching, setFetching] = useState(true)
     const [error, setError] = useState('')
 
     const [formData, setFormData] = useState({
@@ -54,7 +56,33 @@ export default function AddProductPage() {
         stock: '',
         status: 'Active',
     })
+    const [currentImageUrl, setCurrentImageUrl] = useState('')
     const [imageFile, setImageFile] = useState<File | null>(null)
+
+    useEffect(() => {
+        const fetchProduct = async () => {
+            try {
+                const res = await fetch(`/api/products/${id}`)
+                if (!res.ok) throw new Error('Failed to fetch product')
+                const data = await res.json()
+                setFormData({
+                    name: data.name,
+                    description: data.description || '',
+                    price: data.price.toString(),
+                    stock: data.stock.toString(),
+                    status: data.status || 'Active'
+                })
+                if (data.images && data.images.length > 0) {
+                    setCurrentImageUrl(data.images[0])
+                }
+            } catch (err: any) {
+                setError(err.message)
+            } finally {
+                setFetching(false)
+            }
+        }
+        fetchProduct()
+    }, [id])
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -83,18 +111,22 @@ export default function AddProductPage() {
             data.append('stock', formData.stock)
             data.append('status', formData.status)
 
+            if (currentImageUrl) {
+                data.append('currentImageUrl', currentImageUrl)
+            }
+
             if (imageFile) {
                 data.append('images', imageFile)
             }
 
-            const res = await fetch('/api/products', {
-                method: 'POST',
+            const res = await fetch(`/api/products/${id}`, {
+                method: 'PATCH',
                 body: data,
             })
 
             if (!res.ok) {
                 const errData = await res.json()
-                throw new Error(errData.error || 'Failed to create product')
+                throw new Error(errData.error || 'Failed to update product')
             }
 
             router.push('/admin/products')
@@ -106,11 +138,13 @@ export default function AddProductPage() {
         }
     }
 
+    if (fetching) return <div>Loading...</div>
+
     return (
         <div className="flex justify-center max-w-2xl mx-auto w-full">
             <Card className="w-full">
                 <CardHeader>
-                    <CardTitle className="text-2xl">Add New Product</CardTitle>
+                    <CardTitle className="text-2xl">Edit Product</CardTitle>
                 </CardHeader>
                 <CardContent>
                     {error && <p className="text-red-500 mb-4">{error}</p>}
@@ -131,14 +165,14 @@ export default function AddProductPage() {
                                 <Input id="price" name="price" type="number" step="0.01" required value={formData.price} onChange={handleChange} />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="stock">Initial Stock</Label>
+                                <Label htmlFor="stock">Stock</Label>
                                 <Input id="stock" name="stock" type="number" required value={formData.stock} onChange={handleChange} />
                             </div>
                         </div>
 
                         <div className="space-y-2">
                             <Label htmlFor="status">Status</Label>
-                            <Select onValueChange={handleSelectChange} defaultValue={formData.status}>
+                            <Select onValueChange={handleSelectChange} value={formData.status}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Status" />
                                 </SelectTrigger>
@@ -154,13 +188,13 @@ export default function AddProductPage() {
                         <div className="space-y-2">
                             <Label>Product Image</Label>
                             <Input type="file" accept="image/*" onChange={handleFileChange} />
-                            <ImagePreview file={imageFile} />
+                            <ImagePreview file={imageFile} currentUrl={currentImageUrl} />
                         </div>
 
                         <div className="flex justify-end space-x-2 pt-4">
                             <Button type="button" variant="outline" onClick={() => router.push('/admin/products')}>Cancel</Button>
                             <Button type="submit" disabled={loading}>
-                                {loading ? 'Creating...' : 'Create Product'}
+                                {loading ? 'Saving...' : 'Save Changes'}
                             </Button>
                         </div>
                     </form>

@@ -76,6 +76,27 @@ function ContactSection() {
   const [formRef, formVisible] = useScrollAnimation<HTMLDivElement>()
   const [infoRef, infoVisible] = useScrollAnimation<HTMLDivElement>()
 
+  const [contactInfo, setContactInfo] = useState({
+    address: '123 Fashion Avenue\nNew York, NY 10001\nUnited States',
+    email1: 'hello@followmefashionhub.com',
+    email2: 'press@followmefashionhub.com',
+    phone: '+1 (555) 123-4567',
+    hoursMonFri: '9:00 AM - 6:00 PM',
+    hoursSat: '10:00 AM - 4:00 PM',
+    hoursSun: 'Closed',
+  })
+
+  useEffect(() => {
+    fetch('/api/content/contactPage')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.info) {
+          setContactInfo(prev => ({ ...prev, ...data.info }))
+        }
+      })
+      .catch(console.error)
+  }, [])
+
   return (
     <section className="bg-background py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -106,10 +127,8 @@ function ContactSection() {
                 </div>
                 <div>
                   <h3 className="text-sm font-medium tracking-wide text-foreground">Visit Us</h3>
-                  <p className="mt-2 text-sm font-light leading-relaxed text-muted-foreground">
-                    123 Fashion Avenue<br />
-                    New York, NY 10001<br />
-                    United States
+                  <p className="mt-2 text-sm font-light leading-relaxed text-muted-foreground whitespace-pre-line">
+                    {contactInfo.address}
                   </p>
                 </div>
               </div>
@@ -121,10 +140,10 @@ function ContactSection() {
                 <div>
                   <h3 className="text-sm font-medium tracking-wide text-foreground">Email Us</h3>
                   <p className="mt-2 text-sm font-light text-muted-foreground">
-                    hello@followmefashionhub.com
+                    {contactInfo.email1}
                   </p>
                   <p className="text-sm font-light text-muted-foreground">
-                    press@followmefashionhub.com
+                    {contactInfo.email2}
                   </p>
                 </div>
               </div>
@@ -136,7 +155,7 @@ function ContactSection() {
                 <div>
                   <h3 className="text-sm font-medium tracking-wide text-foreground">Call Us</h3>
                   <p className="mt-2 text-sm font-light text-muted-foreground">
-                    +1 (555) 123-4567
+                    {contactInfo.phone}
                   </p>
                   <p className="text-xs font-light text-muted-foreground/60">
                     Mon - Fri, 9am - 6pm EST
@@ -151,15 +170,15 @@ function ContactSection() {
               <div className="mt-4 space-y-2">
                 <div className="flex justify-between text-sm font-light">
                   <span className="text-muted-foreground">Monday - Friday</span>
-                  <span className="text-foreground">9:00 AM - 6:00 PM</span>
+                  <span className="text-foreground">{contactInfo.hoursMonFri}</span>
                 </div>
                 <div className="flex justify-between text-sm font-light">
                   <span className="text-muted-foreground">Saturday</span>
-                  <span className="text-foreground">10:00 AM - 4:00 PM</span>
+                  <span className="text-foreground">{contactInfo.hoursSat}</span>
                 </div>
                 <div className="flex justify-between text-sm font-light">
                   <span className="text-muted-foreground">Sunday</span>
-                  <span className="text-foreground">Closed</span>
+                  <span className="text-foreground">{contactInfo.hoursSun}</span>
                 </div>
               </div>
             </div>
@@ -178,10 +197,31 @@ function ContactForm() {
     message: '',
   })
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSubmitted(true)
+    setIsLoading(true)
+
+    try {
+      const res = await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      })
+
+      if (res.ok) {
+        setIsSubmitted(true)
+        setFormData({ name: '', email: '', subject: '', message: '' })
+      } else {
+        alert('Failed to send message. Please try again later.')
+      }
+    } catch (err) {
+      console.error(err)
+      alert('Failed to send message. Please try again later.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -214,7 +254,7 @@ function ContactForm() {
       <div className="grid gap-6 md:grid-cols-2">
         <div>
           <label htmlFor="name" className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
-            Name
+            Name <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -229,7 +269,7 @@ function ContactForm() {
         </div>
         <div>
           <label htmlFor="email" className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
-            Email
+            Email <span className="text-red-500">*</span>
           </label>
           <input
             type="email"
@@ -246,7 +286,7 @@ function ContactForm() {
 
       <div>
         <label htmlFor="subject" className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
-          Subject
+          Subject <span className="text-red-500">*</span>
         </label>
         <select
           id="subject"
@@ -267,7 +307,7 @@ function ContactForm() {
 
       <div>
         <label htmlFor="message" className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
-          Message
+          Message <span className="text-red-500">*</span>
         </label>
         <textarea
           id="message"
@@ -283,9 +323,10 @@ function ContactForm() {
 
       <button
         type="submit"
-        className="w-full border border-foreground bg-foreground px-8 py-4 text-xs font-medium tracking-widest text-background uppercase transition-all duration-300 hover:bg-transparent hover:text-foreground md:w-auto"
+        disabled={isLoading}
+        className="w-full border border-foreground bg-foreground px-8 py-4 text-xs font-medium tracking-widest text-background uppercase transition-all duration-300 hover:bg-transparent hover:text-foreground md:w-auto disabled:opacity-50"
       >
-        Send Message
+        {isLoading ? 'Sending...' : 'Send Message'}
       </button>
     </form>
   )

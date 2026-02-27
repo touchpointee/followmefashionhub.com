@@ -2,13 +2,13 @@
 
 import React from "react"
 
-import { use } from 'react'
+import { use, useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
-import { getArticleBySlug, articles } from '@/lib/journal-data'
+import { getArticles, getArticleBySlug, Article } from '@/lib/journal-data'
 import { useScrollAnimation } from '@/hooks/use-scroll-animation'
 import { ArrowLeft } from 'lucide-react'
 
@@ -18,7 +18,20 @@ export default function JournalArticlePage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = use(params)
-  const article = getArticleBySlug(slug)
+
+  const [article, setArticle] = useState<Article | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    getArticleBySlug(slug)
+      .then(data => {
+        setArticle(data || null)
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [slug])
+
+  if (loading) return <main className="min-h-screen pt-32"><div className="text-center">Loading...</div></main>
 
   if (!article) {
     notFound()
@@ -27,7 +40,7 @@ export default function JournalArticlePage({
   return (
     <main className="min-h-screen">
       <Header />
-      
+
       {/* Hero Section */}
       <ArticleHero article={article} />
 
@@ -42,7 +55,7 @@ export default function JournalArticlePage({
   )
 }
 
-function ArticleHero({ article }: { article: ReturnType<typeof getArticleBySlug> }) {
+function ArticleHero({ article }: { article: any }) {
   const [ref, isVisible] = useScrollAnimation<HTMLDivElement>()
 
   if (!article) return null
@@ -58,7 +71,7 @@ function ArticleHero({ article }: { article: ReturnType<typeof getArticleBySlug>
         sizes="100vw"
       />
       <div className="absolute inset-0 bg-primary/60" />
-      
+
       <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
         <div
           ref={ref}
@@ -92,7 +105,7 @@ function ArticleHero({ article }: { article: ReturnType<typeof getArticleBySlug>
   )
 }
 
-function ArticleContent({ article }: { article: ReturnType<typeof getArticleBySlug> }) {
+function ArticleContent({ article }: { article: any }) {
   const [ref, isVisible] = useScrollAnimation<HTMLDivElement>()
 
   if (!article) return null
@@ -115,7 +128,7 @@ function ArticleContent({ article }: { article: ReturnType<typeof getArticleBySl
       }
     }
 
-    lines.forEach((line) => {
+    lines.forEach((line: string) => {
       const trimmedLine = line.trim()
 
       if (trimmedLine === '') {
@@ -201,7 +214,13 @@ function ArticleContent({ article }: { article: ReturnType<typeof getArticleBySl
 
 function RelatedArticles({ currentSlug }: { currentSlug: string }) {
   const [headerRef, headerVisible] = useScrollAnimation<HTMLDivElement>()
-  const relatedArticles = articles.filter((a) => a.slug !== currentSlug).slice(0, 2)
+  const [relatedArticles, setRelatedArticles] = useState<any[]>([])
+
+  useEffect(() => {
+    getArticles().then(data => {
+      setRelatedArticles(data.filter((a) => a.slug !== currentSlug).slice(0, 2))
+    })
+  }, [currentSlug])
 
   return (
     <section className="bg-secondary py-20 md:py-32">
@@ -229,7 +248,7 @@ function RelatedArticleCard({
   article,
   index,
 }: {
-  article: (typeof articles)[0]
+  article: any
   index: number
 }) {
   const [ref, isVisible] = useScrollAnimation<HTMLElement>()

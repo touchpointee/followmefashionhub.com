@@ -26,19 +26,27 @@ async function getCMSData(section: string) {
 }
 
 export default async function HomePage() {
-  const heroData = await getCMSData('hero')
-  const aboutData = await getCMSData('about')
+  const [heroData, aboutData, featuredData, breakData, lookbookData, journalData, galleryData] =
+    await Promise.all([
+      getCMSData('hero'),
+      getCMSData('about'),
+      getCMSData('featured'),
+      getCMSData('visualBreak'),
+      getCMSData('lookbook'),
+      getCMSData('journal'),
+      getCMSData('gallery'),
+    ])
 
   return (
     <main className="min-h-screen">
       <Header />
       <HeroSection data={heroData} />
-      <FeaturedCollections />
+      <FeaturedCollections data={featuredData} />
       <AboutSection data={aboutData} />
-      <LookbookSlider />
-      <JournalPreview />
-      <VisualBreakSection />
-      <ImageGallery />
+      <LookbookSlider data={lookbookData} />
+      <JournalPreview data={journalData} />
+      <VisualBreakSection data={breakData} />
+      <ImageGallery data={galleryData} />
       <NewsletterSection />
       <Footer />
     </main>

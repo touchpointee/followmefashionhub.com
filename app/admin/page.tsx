@@ -1,7 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Package, Users, ShoppingCart, DollarSign } from "lucide-react"
+import connectToDatabase from '@/lib/mongodb'
+import Product from '@/lib/models/Product'
 
-export default function AdminDashboard() {
+export default async function AdminDashboard() {
+    await connectToDatabase()
+    const productCount = await Product.countDocuments()
+
     return (
         <div className="flex flex-col gap-6">
             <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
@@ -11,7 +16,7 @@ export default function AdminDashboard() {
                     <Package className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">14</div>
+                    <div className="text-2xl font-bold">{productCount}</div>
                     <p className="text-xs text-muted-foreground">Active in Portfolio</p>
                 </CardContent>
             </Card>

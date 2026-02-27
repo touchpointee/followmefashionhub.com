@@ -1,4 +1,4 @@
-import { S3Client, CreateBucketCommand, HeadBucketCommand } from '@aws-sdk/client-s3'
+import { S3Client, CreateBucketCommand, HeadBucketCommand, PutBucketPolicyCommand } from '@aws-sdk/client-s3'
 
 export const minioClient = new S3Client({
     endpoint: `https://${process.env.MINIO_ENDPOINT}`,
@@ -26,5 +26,27 @@ export async function ensureBucketExists() {
         } else {
             console.error('Error checking bucket:', error)
         }
+    }
+
+    // Always attempt setting public policy just in case it's not set
+    try {
+        const policy = {
+            Version: '2012-10-17',
+            Statement: [
+                {
+                    Sid: 'PublicRead',
+                    Effect: 'Allow',
+                    Principal: '*',
+                    Action: ['s3:GetObject'],
+                    Resource: [`arn:aws:s3:::${bucketName}/*`]
+                }
+            ]
+        }
+        await minioClient.send(new PutBucketPolicyCommand({
+            Bucket: bucketName,
+            Policy: JSON.stringify(policy)
+        }))
+    } catch (e: any) {
+        console.error('Failed setting bucket policy to public:', e.message)
     }
 }

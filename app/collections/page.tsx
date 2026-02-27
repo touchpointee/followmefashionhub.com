@@ -5,12 +5,13 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
-import { collections } from '@/lib/collections-data'
+
 import { useScrollAnimation } from '@/hooks/use-scroll-animation'
 
 export default function CollectionsPage() {
   const [headerRef, headerVisible] = useScrollAnimation<HTMLDivElement>()
   const [heroData, setHeroData] = useState({ title: 'Collections', subtitle: 'Explore our carefully curated collections, each telling a unique story through fabric, form, and artistic vision.', image: '' })
+  const [collections, setCollections] = useState<any[]>([])
 
   useEffect(() => {
     fetch('/api/content/pageHeroes')
@@ -24,6 +25,11 @@ export default function CollectionsPage() {
           })
         }
       })
+      .catch(console.error)
+
+    fetch('/api/collections')
+      .then(res => res.json())
+      .then(data => setCollections(data || []))
       .catch(console.error)
   }, [])
 
@@ -77,7 +83,7 @@ function CollectionRow({
   collection,
   index,
 }: {
-  collection: (typeof collections)[0]
+  collection: any
   index: number
 }) {
   const [ref, isVisible] = useScrollAnimation<HTMLDivElement>()

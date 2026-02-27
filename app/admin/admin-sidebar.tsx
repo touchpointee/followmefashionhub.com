@@ -18,11 +18,13 @@ import {
 const navItems = [
     { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
     { title: "Products", url: "/admin/products", icon: Package },
-    { title: "Home Banner", url: "/admin/content", icon: FileText },
-    { title: "Page Heroes", url: "/admin/content?tab=pageHeroes", icon: FileText },
-    { title: "About Section", url: "/admin/content?tab=about", icon: FileText },
-    { title: "Collections CTA", url: "/admin/content?tab=featured", icon: FileText },
-    { title: "Gallery & More", url: "/admin/content?tab=gallery", icon: FileText },
+    { title: "Collections", url: "/admin/collections", icon: Package },
+    { title: "Messages", url: "/admin/messages", icon: Users },
+    { title: "Journal", url: "/admin/journal", icon: FileText },
+    { title: "Homepage Portions", url: "/admin/homepage", icon: FileText },
+    { title: "About Page", url: "/admin/about-page", icon: FileText },
+    { title: "Contact Page", url: "/admin/contact-page", icon: FileText },
+    { title: "Pages Settings", url: "/admin/pages", icon: FileText },
     { title: "Settings", url: "/admin/settings", icon: Settings },
 ]
 
