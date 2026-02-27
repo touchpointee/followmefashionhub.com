@@ -45,10 +45,10 @@ function ImagePreview({ file, currentUrl }: { file: File | null, currentUrl?: st
 export default function NewCollection() {
     const router = useRouter()
     const [loading, setLoading] = useState(false)
-    const [images, setImages] = useState<{ main: File | null, hero: File | null, gallery: File[] }>({
+    const [images, setImages] = useState<{ main: File | null, hero: File | null, gallery: (File | null)[] }>({
         main: null,
         hero: null,
-        gallery: []
+        gallery: [null, null, null, null, null, null]
     })
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -58,7 +58,10 @@ export default function NewCollection() {
         const formData = new FormData(e.currentTarget)
         if (images.main) formData.set('image', images.main)
         if (images.hero) formData.set('heroImage', images.hero)
-        images.gallery.forEach(file => formData.append('gallery', file))
+        for (let i = 0; i < 6; i++) {
+            if (images.gallery[i]) formData.append(`gallery_${i}`, images.gallery[i] as File)
+            else formData.append(`gallery_${i}`, '')
+        }
 
         try {
             const res = await fetch('/api/collections', {
@@ -136,20 +139,28 @@ export default function NewCollection() {
                             <Input type="file" onChange={(e) => setImages(prev => ({ ...prev, hero: e.target.files?.[0] || null }))} accept="image/*" />
                             <ImagePreview file={images.hero} />
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Lookbook Gallery (Multiple)</label>
-                            <Input type="file" multiple onChange={(e) => {
-                                if (e.target.files) {
-                                    setImages(prev => ({ ...prev, gallery: Array.from(e.target.files!) }))
-                                }
-                            }} accept="image/*" />
-                            {images.gallery.length > 0 && (
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                    {images.gallery.map((file, i) => (
-                                        <ImagePreview key={i} file={file} />
-                                    ))}
-                                </div>
-                            )}
+                        <div className="space-y-4">
+                            <h3 className="text-sm font-medium border-b pb-2">Lookbook Gallery (6 Images)</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {[0, 1, 2, 3, 4, 5].map((idx) => (
+                                    <div key={idx} className="space-y-2 border p-4 rounded bg-muted/20">
+                                        <label className="text-sm font-medium">Gallery Image {idx + 1}</label>
+                                        <Input
+                                            type="file"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0] || null
+                                                setImages(prev => {
+                                                    const newGallery = [...prev.gallery]
+                                                    newGallery[idx] = file
+                                                    return { ...prev, gallery: newGallery }
+                                                })
+                                            }}
+                                            accept="image/*"
+                                        />
+                                        <ImagePreview file={images.gallery[idx]} />
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </CardContent>
                 </Card>

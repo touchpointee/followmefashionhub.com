@@ -48,10 +48,10 @@ export default function EditCollection({ params }: { params: Promise<{ id: strin
     const [fetching, setFetching] = useState(true)
 
     const [currentImages, setCurrentImages] = useState({ image: '', heroImage: '', gallery: [] as string[] })
-    const [images, setImages] = useState<{ main: File | null, hero: File | null, gallery: File[] }>({
+    const [images, setImages] = useState<{ main: File | null, hero: File | null, gallery: (File | null)[] }>({
         main: null,
         hero: null,
-        gallery: []
+        gallery: [null, null, null, null, null, null]
     })
     const [formDataState, setFormDataState] = useState({
         name: '', season: '', year: '', description: '', longDescription: ''
@@ -91,11 +91,15 @@ export default function EditCollection({ params }: { params: Promise<{ id: strin
         const formData = new FormData(e.currentTarget)
         formData.set('currentImage', currentImages.image)
         formData.set('currentHeroImage', currentImages.heroImage)
-        formData.set('currentGallery', JSON.stringify(currentImages.gallery))
 
         if (images.main) formData.set('image', images.main)
         if (images.hero) formData.set('heroImage', images.hero)
-        images.gallery.forEach(file => formData.append('gallery', file))
+
+        for (let i = 0; i < 6; i++) {
+            if (images.gallery[i]) formData.append(`gallery_${i}`, images.gallery[i] as File)
+            else if (currentImages.gallery[i]) formData.append(`gallery_${i}`, currentImages.gallery[i])
+            else formData.append(`gallery_${i}`, '')
+        }
 
         try {
             const res = await fetch(`/api/collections/${id}`, {
@@ -177,24 +181,28 @@ export default function EditCollection({ params }: { params: Promise<{ id: strin
                             <Input type="file" onChange={(e) => setImages(prev => ({ ...prev, hero: e.target.files?.[0] || null }))} accept="image/*" />
                             <ImagePreview file={images.hero} currentUrl={currentImages.heroImage} />
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Lookbook Gallery (Multiple)</label>
-                            <Input type="file" multiple onChange={(e) => {
-                                if (e.target.files) {
-                                    setImages(prev => ({ ...prev, gallery: Array.from(e.target.files!) }))
-                                }
-                            }} accept="image/*" />
-
-                            {(images.gallery.length > 0 || currentImages.gallery.length > 0) && (
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                    {images.gallery.map((file, i) => (
-                                        <ImagePreview key={`new-${i}`} file={file} />
-                                    ))}
-                                    {images.gallery.length === 0 && currentImages.gallery.map((url, i) => (
-                                        <ImagePreview key={`old-${i}`} file={null} currentUrl={url} />
-                                    ))}
-                                </div>
-                            )}
+                        <div className="space-y-4">
+                            <h3 className="text-sm font-medium border-b pb-2">Lookbook Gallery (6 Images)</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {[0, 1, 2, 3, 4, 5].map((idx) => (
+                                    <div key={idx} className="space-y-2 border p-4 rounded bg-muted/20">
+                                        <label className="text-sm font-medium">Gallery Image {idx + 1}</label>
+                                        <Input
+                                            type="file"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0] || null
+                                                setImages(prev => {
+                                                    const newGallery = [...prev.gallery]
+                                                    newGallery[idx] = file
+                                                    return { ...prev, gallery: newGallery }
+                                                })
+                                            }}
+                                            accept="image/*"
+                                        />
+                                        <ImagePreview file={images.gallery[idx]} currentUrl={currentImages.gallery[idx]} />
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </CardContent>
                 </Card>

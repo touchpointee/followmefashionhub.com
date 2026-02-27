@@ -11,6 +11,7 @@ import { NewsletterSection } from '@/components/home/newsletter-section'
 
 import connectToDatabase from '@/lib/mongodb'
 import SiteContent from '@/lib/models/SiteContent'
+import Collection from '@/lib/models/Collection'
 
 export const dynamic = 'force-dynamic' // Ensure homepage fetches fresh CMS data
 
@@ -26,22 +27,31 @@ async function getCMSData(section: string) {
 }
 
 export default async function HomePage() {
-  const [heroData, aboutData, featuredData, breakData, lookbookData, journalData, galleryData] =
+  const [heroData, aboutData, breakData, lookbookData, journalData, galleryData] =
     await Promise.all([
       getCMSData('hero'),
       getCMSData('about'),
-      getCMSData('featured'),
       getCMSData('visualBreak'),
       getCMSData('lookbook'),
       getCMSData('journal'),
       getCMSData('gallery'),
     ])
 
+  await connectToDatabase()
+  const latestCollections = await Collection.find({}).sort({ createdAt: -1 }).limit(3).lean()
+  // Clean up MongoDB _id for client component
+  const realCollections = latestCollections.map((c: any) => ({
+    id: c.id,
+    name: c.name,
+    description: c.shortDescription || c.description || '',
+    image: c.image || c.heroImage || null,
+  }))
+
   return (
     <main className="min-h-screen">
       <Header />
       <HeroSection data={heroData} />
-      <FeaturedCollections data={featuredData} />
+      <FeaturedCollections latestCollections={realCollections} />
       <AboutSection data={aboutData} />
       <LookbookSlider data={lookbookData} />
       <JournalPreview data={journalData} />

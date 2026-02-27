@@ -47,24 +47,14 @@ export async function PATCH(
 
         const existingImg = formData.get('currentImage') as string
         const existingHero = formData.get('currentHeroImage') as string
-
-        // Use existing arrays parsed from json if they exist and no new ones are updated
-        const currentGalleryRaw = formData.get('currentGallery') as string
-        let currentGallery: string[] = []
-        if (currentGalleryRaw) {
-            try { currentGallery = JSON.parse(currentGalleryRaw) } catch (e) { }
-        }
-
         const imageFile = formData.get('image') as File | null
         const heroFile = formData.get('heroImage') as File | null
-        const galleryFiles = formData.getAll('gallery') as File[]
 
         const minioBucket = process.env.MINIO_BUCKET_NAME || 'followmefashionhub'
         const endpoint = process.env.MINIO_ENDPOINT
 
         let finalImage = existingImg
         let finalHero = existingHero
-        let finalGallery = [...currentGallery]
 
         // Helper function to upload an image
         const uploadImage = async (file: File) => {
@@ -86,11 +76,17 @@ export async function PATCH(
             if (uploaded) finalHero = uploaded
         }
 
-        if (galleryFiles && galleryFiles.length > 0 && galleryFiles[0] instanceof File) {
-            const newGalleryUrls = await Promise.all(galleryFiles.map(uploadImage))
-            const validUrls = newGalleryUrls.filter(url => url !== null) as string[]
-            if (validUrls.length > 0) {
-                finalGallery = validUrls;
+        let finalGallery: string[] = []
+        for (let i = 0; i < 6; i++) {
+            const item = formData.get(`gallery_${i}`)
+            if (item instanceof File && item.size > 0 && item.name !== 'empty.txt') {
+                const url = await uploadImage(item)
+                if (url) finalGallery.push(url)
+                else finalGallery.push('')
+            } else if (typeof item === 'string' && item.trim() !== '') {
+                finalGallery.push(item)
+            } else {
+                finalGallery.push('')
             }
         }
 

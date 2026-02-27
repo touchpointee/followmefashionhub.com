@@ -4,11 +4,13 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useScrollAnimation } from '@/hooks/use-scroll-animation'
 
-interface FeaturedData {
-  headerBadge?: string
-  headerTitle?: string
-  headerDesc?: string
-  collections?: {
+interface Props {
+  data?: {
+    headerBadge?: string
+    headerTitle?: string
+    headerDesc?: string
+  }
+  latestCollections?: {
     id: string
     name: string
     description: string
@@ -37,10 +39,10 @@ const defaultCollections = [
   },
 ]
 
-export function FeaturedCollections({ data }: { data?: FeaturedData }) {
+export function FeaturedCollections({ data, latestCollections = [] }: Props) {
   const [headerRef, headerVisible] = useScrollAnimation<HTMLDivElement>()
 
-  const activeCollections = data?.collections?.length === 3 ? data.collections : defaultCollections
+  const activeCollections = latestCollections.length > 0 ? latestCollections : defaultCollections
 
   return (
     <section className="bg-background py-24 md:py-32">

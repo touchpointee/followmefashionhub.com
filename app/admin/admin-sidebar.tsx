@@ -6,7 +6,6 @@ import {
     Package,
     FileText,
     Users,
-    Settings,
     MessageSquare,
     Home,
     Info,
@@ -20,7 +19,6 @@ import { cn } from "@/lib/utils"
 
 const navItems = [
     { title: "Dashboard", url: "/admin", icon: LayoutDashboard, exact: true },
-    { title: "Products", url: "/admin/products", icon: Package },
     { title: "Collections", url: "/admin/collections", icon: BookOpen },
     { title: "Messages", url: "/admin/messages", icon: MessageSquare },
     { title: "Journal", url: "/admin/journal", icon: FileText },
@@ -28,7 +26,6 @@ const navItems = [
     { title: "About Page", url: "/admin/about-page", icon: Info },
     { title: "Contact Page", url: "/admin/contact-page", icon: Phone },
     { title: "Pages Settings", url: "/admin/pages", icon: SlidersHorizontal },
-    { title: "Settings", url: "/admin/settings", icon: Settings },
 ]
 
 export function AdminSidebar({ ...props }: React.ComponentProps<"aside">) {

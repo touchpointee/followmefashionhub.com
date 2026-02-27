@@ -30,7 +30,6 @@ export async function POST(request: Request) {
 
         const imageFile = formData.get('image') as File | null
         const heroImageFile = formData.get('heroImage') as File | null
-        const galleryFiles = formData.getAll('gallery') as File[]
 
         const minioBucket = process.env.MINIO_BUCKET_NAME || 'followmefashionhub'
         const endpoint = process.env.MINIO_ENDPOINT
@@ -57,9 +56,18 @@ export async function POST(request: Request) {
 
         if (imageFile) imageUrl = await uploadFile(imageFile) || ''
         if (heroImageFile) heroImageUrl = await uploadFile(heroImageFile) || ''
-        for (const file of galleryFiles) {
-            const url = await uploadFile(file)
-            if (url) galleryUrls.push(url)
+
+        for (let i = 0; i < 6; i++) {
+            const item = formData.get(`gallery_${i}`)
+            if (item instanceof File && item.size > 0 && item.name !== 'empty.txt') {
+                const url = await uploadFile(item)
+                if (url) galleryUrls.push(url)
+                else galleryUrls.push('')
+            } else if (typeof item === 'string' && item.trim() !== '') {
+                galleryUrls.push(item)
+            } else {
+                galleryUrls.push('')
+            }
         }
 
         const newDoc = new Collection({

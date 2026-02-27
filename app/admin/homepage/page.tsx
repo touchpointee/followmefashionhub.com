@@ -87,18 +87,7 @@ function HomepagePortions() {
     })
     const [aboutImageFile, setAboutImageFile] = useState<File | null>(null)
 
-    // 3. FEATURED COLLECTIONS STATE
-    const [featuredData, setFeaturedData] = useState({
-        headerBadge: 'Featured',
-        headerTitle: 'Our Collections',
-        headerDesc: 'Explore our carefully curated collections, each telling a unique story through fabric, form, and artistic vision.',
-        collections: [
-            { id: 'mens-trends', name: "Men's Trends", description: '', image: '' },
-            { id: 'accessories', name: 'Accessories', description: '', image: '' },
-            { id: 'footwear', name: 'Footwear', description: '', image: '' },
-        ]
-    })
-    const [featuredFiles, setFeaturedFiles] = useState<(File | null)[]>([null, null, null])
+
 
     // 4. VISUAL BREAK STATE
     const [breakData, setBreakData] = useState({
@@ -159,16 +148,15 @@ function HomepagePortions() {
     useEffect(() => {
         async function loadData() {
             try {
-                const [hRes, aRes, fRes, bRes, lRes, jRes, gRes, footerRes] = await Promise.all([
+                const [hRes, aRes, bRes, lRes, jRes, gRes, footerRes] = await Promise.all([
                     fetch('/api/content/hero'), fetch('/api/content/about'),
-                    fetch('/api/content/featured'), fetch('/api/content/visualBreak'),
+                    fetch('/api/content/visualBreak'),
                     fetch('/api/content/lookbook'), fetch('/api/content/journal'), fetch('/api/content/gallery'),
                     fetch('/api/content/footer')
                 ])
 
                 if (hRes.ok) { const d = await hRes.json(); if (Object.keys(d).length > 0) setHeroData(p => ({ ...p, ...d })) }
                 if (aRes.ok) { const d = await aRes.json(); if (Object.keys(d).length > 0) setAboutData(p => ({ ...p, ...d })) }
-                if (fRes.ok) { const d = await fRes.json(); if (Object.keys(d).length > 0) setFeaturedData(p => ({ ...p, ...d })) }
                 if (bRes.ok) { const d = await bRes.json(); if (Object.keys(d).length > 0) setBreakData(p => ({ ...p, ...d })) }
                 if (lRes.ok) { const d = await lRes.json(); if (Object.keys(d).length > 0) setLookbookData(p => ({ ...p, ...d })) }
                 if (jRes.ok) { const d = await jRes.json(); if (Object.keys(d).length > 0) setJournalData(p => ({ ...p, ...d })) }
@@ -208,16 +196,7 @@ function HomepagePortions() {
         }, 'About section updated successfully!')
     }
 
-    const handleFeaturedSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        wrapSubmit(async () => {
-            const payload = { ...featuredData }
-            for (let i = 0; i < featuredFiles.length; i++) {
-                if (featuredFiles[i]) payload.collections[i].image = await uploadFile(featuredFiles[i]!)
-            }
-            await saveSection('featured', payload)
-        }, 'Featured Collections updated successfully!')
-    }
+
 
     const handleBreakSubmit = (e: React.FormEvent) => {
         e.preventDefault()
@@ -282,7 +261,7 @@ function HomepagePortions() {
                 <TabsList className="mb-4 flex flex-wrap h-auto gap-2">
                     <TabsTrigger value="hero">Home Banner</TabsTrigger>
                     <TabsTrigger value="about">About Section</TabsTrigger>
-                    <TabsTrigger value="featured">Featured Collections</TabsTrigger>
+
                     <TabsTrigger value="break">Visual Break</TabsTrigger>
                     <TabsTrigger value="lookbook">Lookbook</TabsTrigger>
                     <TabsTrigger value="journal">Journal</TabsTrigger>
@@ -358,42 +337,7 @@ function HomepagePortions() {
                     </Card>
                 </TabsContent>
 
-                <TabsContent value="featured">
-                    <Card>
-                        <form onSubmit={handleFeaturedSubmit}>
-                            <CardHeader><CardTitle>Featured Collections</CardTitle></CardHeader>
-                            <CardContent className="space-y-6">
-                                <div className="grid grid-cols-3 gap-4 border-b pb-4">
-                                    <div className="space-y-2"><Label>Header Badge</Label><Input value={featuredData.headerBadge} onChange={(e) => setFeaturedData({ ...featuredData, headerBadge: e.target.value })} /></div>
-                                    <div className="space-y-2"><Label>Header Title</Label><Input value={featuredData.headerTitle} onChange={(e) => setFeaturedData({ ...featuredData, headerTitle: e.target.value })} /></div>
-                                    <div className="space-y-2 col-span-3"><Label>Header Description</Label><Textarea value={featuredData.headerDesc} onChange={(e) => setFeaturedData({ ...featuredData, headerDesc: e.target.value })} /></div>
-                                </div>
 
-                                {featuredData.collections?.map((col, idx) => (
-                                    <div key={idx} className="space-y-4 border p-4 rounded-md bg-muted/20">
-                                        <h3 className="font-medium">Collection {idx + 1}</h3>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <Label>Name</Label>
-                                                <Input value={col.name} onChange={(e) => setFeaturedData(prev => { const n = [...prev.collections]; n[idx].name = e.target.value; return { ...prev, collections: n } })} />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label>Image</Label>
-                                                <Input type="file" accept="image/*" onChange={(e) => setFeaturedFiles(prev => { const n = [...prev]; n[idx] = e.target.files?.[0] || null; return n })} />
-                                                <ImagePreview file={featuredFiles[idx]} currentUrl={col.image} />
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label>Description</Label>
-                                            <Textarea value={col.description} onChange={(e) => setFeaturedData(prev => { const n = [...prev.collections]; n[idx].description = e.target.value; return { ...prev, collections: n } })} />
-                                        </div>
-                                    </div>
-                                ))}
-                            </CardContent>
-                            <CardFooter><Button type="submit" disabled={loading}>Save Featured Changes</Button></CardFooter>
-                        </form>
-                    </Card>
-                </TabsContent>
 
                 <TabsContent value="break">
                     <Card>
