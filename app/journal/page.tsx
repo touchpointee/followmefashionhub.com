@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { articles } from '@/lib/journal-data'
@@ -9,24 +10,48 @@ import { useScrollAnimation } from '@/hooks/use-scroll-animation'
 
 export default function JournalPage() {
   const [headerRef, headerVisible] = useScrollAnimation<HTMLDivElement>()
+  const [heroData, setHeroData] = useState({ title: 'Journal', subtitle: 'Stories, insights, and inspirations from the world of Follow Me Fashion Hub. Explore our thoughts on style, sustainability, and the art of dressing well.', image: '' })
+
+  useEffect(() => {
+    fetch('/api/content/pageHeroes')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.journalHero) {
+          setHeroData({
+            title: data.journalHero.title || 'Journal',
+            subtitle: data.journalHero.subtitle || 'Stories, insights, and inspirations from the world of Follow Me Fashion Hub. Explore our thoughts on style, sustainability, and the art of dressing well.',
+            image: data.journalHero.image || ''
+          })
+        }
+      })
+      .catch(console.error)
+  }, [])
 
   return (
     <main className="min-h-screen">
       <Header />
-      
+
       {/* Hero Section */}
-      <section className="bg-primary pt-32 pb-20">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+      <section className="relative bg-primary pt-32 pb-20 overflow-hidden">
+        {heroData.image && (
+          <Image
+            src={heroData.image}
+            alt="Journal Hero"
+            fill
+            className="object-cover opacity-20"
+            priority
+          />
+        )}
+        <div className="relative mx-auto max-w-7xl px-6 lg:px-8 z-10">
           <div
             ref={headerRef}
             className={`text-center ${headerVisible ? 'animate-fade-up' : 'opacity-0'}`}
           >
             <h1 className="text-4xl font-light tracking-wide text-primary-foreground md:text-6xl">
-              Journal
+              {heroData.title}
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-sm font-light leading-relaxed text-primary-foreground/70">
-              Stories, insights, and inspirations from the world of Follow Me Fashion Hub. 
-              Explore our thoughts on style, sustainability, and the art of dressing well.
+              {heroData.subtitle}
             </p>
           </div>
         </div>
@@ -66,9 +91,8 @@ function FeaturedArticle({ article }: { article: (typeof articles)[0] }) {
   return (
     <div
       ref={ref}
-      className={`grid items-center gap-8 md:grid-cols-2 md:gap-16 ${
-        isVisible ? 'animate-fade-up' : 'opacity-0'
-      }`}
+      className={`grid items-center gap-8 md:grid-cols-2 md:gap-16 ${isVisible ? 'animate-fade-up' : 'opacity-0'
+        }`}
     >
       <Link
         href={`/journal/${article.slug}`}

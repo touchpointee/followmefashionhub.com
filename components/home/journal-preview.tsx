@@ -4,7 +4,20 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useScrollAnimation } from '@/hooks/use-scroll-animation'
 
-const articles = [
+interface JournalData {
+  headerBadge?: string
+  headerTitle?: string
+  articles?: {
+    slug: string
+    title: string
+    excerpt: string
+    image: string
+    date: string
+    category: string
+  }[]
+}
+
+const defaultArticles = [
   {
     slug: 'the-art-of-sustainable-fashion',
     title: 'The Art of Sustainable Fashion',
@@ -31,8 +44,10 @@ const articles = [
   },
 ]
 
-export function JournalPreview() {
+export function JournalPreview({ data }: { data?: JournalData }) {
   const [headerRef, headerVisible] = useScrollAnimation<HTMLDivElement>()
+
+  const activeArticles = data?.articles?.filter(a => a.title !== "").length ? data.articles.filter(a => a.title !== "") : defaultArticles
 
   return (
     <section className="bg-secondary py-24 md:py-32">
@@ -40,16 +55,15 @@ export function JournalPreview() {
         {/* Section Header */}
         <div
           ref={headerRef}
-          className={`mb-16 flex flex-col items-center justify-between gap-6 md:flex-row ${
-            headerVisible ? 'animate-fade-up' : 'opacity-0'
-          }`}
+          className={`mb-16 flex flex-col items-center justify-between gap-6 md:flex-row ${headerVisible ? 'animate-fade-up' : 'opacity-0'
+            }`}
         >
           <div>
             <span className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
-              From the Journal
+              {data?.headerBadge || "From the Journal"}
             </span>
             <h2 className="mt-4 text-3xl font-light tracking-wide text-foreground md:text-5xl">
-              Latest Stories
+              {data?.headerTitle || "Latest Stories"}
             </h2>
           </div>
           <Link
@@ -62,8 +76,8 @@ export function JournalPreview() {
 
         {/* Articles Grid */}
         <div className="grid gap-8 md:grid-cols-3">
-          {articles.map((article, index) => (
-            <ArticleCard key={article.slug} article={article} index={index} />
+          {activeArticles.map((article, index) => (
+            <ArticleCard key={index} article={article as any} index={index} />
           ))}
         </div>
       </div>
@@ -75,7 +89,7 @@ function ArticleCard({
   article,
   index,
 }: {
-  article: (typeof articles)[0]
+  article: { slug?: string, title: string, excerpt: string, image: string, date: string, category: string }
   index: number
 }) {
   const [ref, isVisible] = useScrollAnimation<HTMLElement>()
@@ -86,7 +100,7 @@ function ArticleCard({
       className={`group ${isVisible ? 'animate-fade-up' : 'opacity-0'}`}
       style={{ animationDelay: `${index * 150}ms` }}
     >
-      <Link href={`/journal/${article.slug}`}>
+      <Link href={article.slug ? `/journal/${article.slug}` : '#'}>
         <div className="image-hover-zoom relative aspect-[4/3] overflow-hidden">
           <Image
             src={article.image || "/placeholder.svg"}

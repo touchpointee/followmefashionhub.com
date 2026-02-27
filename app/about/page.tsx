@@ -1,6 +1,7 @@
 "use client"
 
 import Image from 'next/image'
+import { useState, useEffect } from 'react'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { useScrollAnimation } from '@/hooks/use-scroll-animation'
@@ -9,7 +10,7 @@ export default function AboutPage() {
   return (
     <main className="min-h-screen">
       <Header />
-      
+
       {/* Hero Section */}
       <AboutHero />
 
@@ -29,11 +30,27 @@ export default function AboutPage() {
 
 function AboutHero() {
   const [ref, isVisible] = useScrollAnimation<HTMLDivElement>()
+  const [heroData, setHeroData] = useState({ title: 'About Us', subtitle: 'Our Story', image: '/images/about-hero.jpg' })
+
+  useEffect(() => {
+    fetch('/api/content/pageHeroes')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.aboutHero) {
+          setHeroData({
+            title: data.aboutHero.title || 'About Us',
+            subtitle: data.aboutHero.subtitle || 'Our Story',
+            image: data.aboutHero.image || '/images/about-hero.jpg'
+          })
+        }
+      })
+      .catch(console.error)
+  }, [])
 
   return (
     <section className="relative h-[60vh] min-h-[400px] overflow-hidden">
       <Image
-        src="/images/about-hero.jpg"
+        src={heroData.image}
         alt="Follow Me Fashion Hub studio"
         fill
         className="object-cover"
@@ -41,17 +58,17 @@ function AboutHero() {
         sizes="100vw"
       />
       <div className="absolute inset-0 bg-primary/50" />
-      
+
       <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
         <div
           ref={ref}
           className={`${isVisible ? 'animate-fade-up' : 'opacity-0'}`}
         >
           <span className="text-xs font-medium tracking-widest text-primary-foreground/70 uppercase">
-            Our Story
+            {heroData.subtitle}
           </span>
           <h1 className="mt-4 text-4xl font-light tracking-wide text-primary-foreground md:text-6xl">
-            About Us
+            {heroData.title}
           </h1>
         </div>
       </div>
@@ -69,9 +86,8 @@ function OurStory() {
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
           <div
             ref={imageRef}
-            className={`relative aspect-[4/5] overflow-hidden ${
-              imageVisible ? 'animate-slide-in-left' : 'opacity-0'
-            }`}
+            className={`relative aspect-[4/5] overflow-hidden ${imageVisible ? 'animate-slide-in-left' : 'opacity-0'
+              }`}
           >
             <Image
               src="/images/about-brand.jpg"
@@ -91,17 +107,17 @@ function OurStory() {
             </h2>
             <div className="mt-8 space-y-6 text-sm font-light leading-relaxed text-muted-foreground">
               <p>
-                Follow Me Fashion Hub was born from a simple belief: that fashion should be a form of 
+                Follow Me Fashion Hub was born from a simple belief: that fashion should be a form of
                 self-expression accessible to everyone who values quality and design.
               </p>
               <p>
-                Founded in 2020, our brand emerged during a time when the world was reimagining what 
-                truly matters. We set out to create clothing that would become trusted companions in 
+                Founded in 2020, our brand emerged during a time when the world was reimagining what
+                truly matters. We set out to create clothing that would become trusted companions in
                 our customers lives—pieces that inspire confidence and stand the test of time.
               </p>
               <p>
-                Today, we continue to honor that founding vision, designing collections that blend 
-                contemporary aesthetics with timeless elegance. Every garment we create is a 
+                Today, we continue to honor that founding vision, designing collections that blend
+                contemporary aesthetics with timeless elegance. Every garment we create is a
                 testament to our commitment to quality, sustainability, and the art of dressing well.
               </p>
             </div>
@@ -202,15 +218,15 @@ function TeamSection() {
             </h2>
             <div className="mt-8 space-y-6 text-sm font-light leading-relaxed text-muted-foreground">
               <p>
-                Our team is a diverse collective of designers, artisans, and visionaries who share 
+                Our team is a diverse collective of designers, artisans, and visionaries who share
                 a common passion for fashion and excellence.
               </p>
               <p>
-                From our design studio to our production facilities, every member of the Follow Me 
+                From our design studio to our production facilities, every member of the Follow Me
                 Fashion Hub family contributes their unique expertise to bring our collections to life.
               </p>
               <p>
-                We believe that great fashion is the result of great collaboration, and we are proud 
+                We believe that great fashion is the result of great collaboration, and we are proud
                 to work with some of the most talented individuals in the industry.
               </p>
             </div>
@@ -218,9 +234,8 @@ function TeamSection() {
 
           <div
             ref={imageRef}
-            className={`relative aspect-[4/3] overflow-hidden lg:order-2 ${
-              imageVisible ? 'animate-slide-in-right' : 'opacity-0'
-            }`}
+            className={`relative aspect-[4/3] overflow-hidden lg:order-2 ${imageVisible ? 'animate-slide-in-right' : 'opacity-0'
+              }`}
           >
             <Image
               src="/images/team.jpg"

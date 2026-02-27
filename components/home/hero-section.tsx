@@ -5,17 +5,28 @@ import Link from 'next/link'
 import { useScrollAnimation } from '@/hooks/use-scroll-animation'
 import { ArrowRight } from 'lucide-react'
 
-export function HeroSection() {
+interface HeroData {
+  titleLine1?: string
+  titleLine2?: string
+  subtitle?: string
+  ctaAction1?: string
+  ctaAction2?: string
+  backgroundImage?: string
+}
+
+export function HeroSection({ data }: { data?: HeroData }) {
   const [titleRef, titleVisible] = useScrollAnimation<HTMLHeadingElement>()
   const [subtitleRef, subtitleVisible] = useScrollAnimation<HTMLParagraphElement>()
   const [ctaRef, ctaVisible] = useScrollAnimation<HTMLDivElement>()
+
+  const bgImage = data?.backgroundImage || "https://images.unsplash.com/photo-1555529771-835f59fc5efe?auto=format&fit=crop&w=1920&q=80"
 
   return (
     <section className="relative h-screen w-full overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0">
         <Image
-          src="https://images.unsplash.com/photo-1555529771-835f59fc5efe?auto=format&fit=crop&w=1920&q=80"
+          src={bgImage}
           alt="Men's fashion store"
           fill
           className="object-cover brightness-[0.7]"
@@ -32,8 +43,8 @@ export function HeroSection() {
           className={`max-w-4xl text-5xl font-light leading-tight tracking-wider text-white md:text-7xl lg:text-8xl ${titleVisible ? 'animate-fade-up' : 'opacity-0'
             }`}
         >
-          <span className="block text-balance">Modern Men&apos;s</span>
-          <span className="mt-2 block font-semibold text-balance">Fashion</span>
+          <span className="block text-balance">{data?.titleLine1 || "Modern Men's"}</span>
+          <span className="mt-2 block font-semibold text-balance">{data?.titleLine2 || "Fashion"}</span>
         </h1>
 
         <p
@@ -41,8 +52,7 @@ export function HeroSection() {
           className={`mt-8 max-w-xl text-lg font-light leading-relaxed tracking-wide text-white/90 md:text-xl ${subtitleVisible ? 'animate-fade-up delay-200' : 'opacity-0'
             }`}
         >
-          Explore Our New Store Opening in Kaniyapuram.
-          Where style meets substance.
+          {data?.subtitle || "Explore Our New Store Opening in Kaniyapuram. Where style meets substance."}
         </p>
 
         <div
@@ -54,14 +64,14 @@ export function HeroSection() {
             href="/collections"
             className="group flex items-center gap-2 border border-white bg-white px-8 py-4 text-xs font-bold tracking-widest text-black uppercase transition-all duration-300 hover:bg-transparent hover:text-white"
           >
-            Shop Collection
+            {data?.ctaAction1 || 'Shop Collection'}
             <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
           <Link
             href="/about"
             className="group flex items-center gap-2 border border-white px-8 py-4 text-xs font-bold tracking-widest text-white uppercase transition-all duration-300 hover:bg-white hover:text-black"
           >
-            Visit Store
+            {data?.ctaAction2 || 'Visit Store'}
           </Link>
         </div>
       </div>

@@ -9,13 +9,32 @@ import { VisualBreakSection } from '@/components/home/visual-break-section'
 import { ImageGallery } from '@/components/home/image-gallery'
 import { NewsletterSection } from '@/components/home/newsletter-section'
 
-export default function HomePage() {
+import connectToDatabase from '@/lib/mongodb'
+import SiteContent from '@/lib/models/SiteContent'
+
+export const dynamic = 'force-dynamic' // Ensure homepage fetches fresh CMS data
+
+async function getCMSData(section: string) {
+  try {
+    await connectToDatabase()
+    const content = await SiteContent.findOne({ section }).lean()
+    return content ? content.data : {}
+  } catch (e) {
+    console.error(`Failed to fetch CMS data for ${section}`, e)
+    return {}
+  }
+}
+
+export default async function HomePage() {
+  const heroData = await getCMSData('hero')
+  const aboutData = await getCMSData('about')
+
   return (
     <main className="min-h-screen">
       <Header />
-      <HeroSection />
+      <HeroSection data={heroData} />
       <FeaturedCollections />
-      <AboutSection />
+      <AboutSection data={aboutData} />
       <LookbookSlider />
       <JournalPreview />
       <VisualBreakSection />

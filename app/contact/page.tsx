@@ -2,7 +2,8 @@
 
 import React from "react"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { useScrollAnimation } from '@/hooks/use-scroll-animation'
@@ -12,7 +13,7 @@ export default function ContactPage() {
   return (
     <main className="min-h-screen">
       <Header />
-      
+
       {/* Hero Section */}
       <ContactHero />
 
@@ -26,20 +27,44 @@ export default function ContactPage() {
 
 function ContactHero() {
   const [ref, isVisible] = useScrollAnimation<HTMLDivElement>()
+  const [heroData, setHeroData] = useState({ title: 'Contact Us', subtitle: 'We would love to hear from you. Whether you have a question about our collections, need assistance, or simply want to share your thoughts, we are here to help.', image: '' })
+
+  useEffect(() => {
+    fetch('/api/content/pageHeroes')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.contactHero) {
+          setHeroData({
+            title: data.contactHero.title || 'Contact Us',
+            subtitle: data.contactHero.subtitle || 'We would love to hear from you. Whether you have a question about our collections, need assistance, or simply want to share your thoughts, we are here to help.',
+            image: data.contactHero.image || ''
+          })
+        }
+      })
+      .catch(console.error)
+  }, [])
 
   return (
-    <section className="bg-primary pt-32 pb-20">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+    <section className="relative bg-primary pt-32 pb-20">
+      {heroData.image && (
+        <Image
+          src={heroData.image}
+          alt="Contact Hero"
+          fill
+          className="object-cover opacity-20"
+          priority
+        />
+      )}
+      <div className="relative mx-auto max-w-7xl px-6 lg:px-8 z-10">
         <div
           ref={ref}
           className={`text-center ${isVisible ? 'animate-fade-up' : 'opacity-0'}`}
         >
           <h1 className="text-4xl font-light tracking-wide text-primary-foreground md:text-6xl">
-            Contact Us
+            {heroData.title}
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-sm font-light leading-relaxed text-primary-foreground/70">
-            We would love to hear from you. Whether you have a question about our collections, 
-            need assistance, or simply want to share your thoughts, we are here to help.
+            {heroData.subtitle}
           </p>
         </div>
       </div>

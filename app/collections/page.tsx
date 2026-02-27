@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { collections } from '@/lib/collections-data'
@@ -9,24 +10,48 @@ import { useScrollAnimation } from '@/hooks/use-scroll-animation'
 
 export default function CollectionsPage() {
   const [headerRef, headerVisible] = useScrollAnimation<HTMLDivElement>()
+  const [heroData, setHeroData] = useState({ title: 'Collections', subtitle: 'Explore our carefully curated collections, each telling a unique story through fabric, form, and artistic vision.', image: '' })
+
+  useEffect(() => {
+    fetch('/api/content/pageHeroes')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.collectionsHero) {
+          setHeroData({
+            title: data.collectionsHero.title || 'Collections',
+            subtitle: data.collectionsHero.subtitle || 'Explore our carefully curated collections, each telling a unique story through fabric, form, and artistic vision.',
+            image: data.collectionsHero.image || ''
+          })
+        }
+      })
+      .catch(console.error)
+  }, [])
 
   return (
     <main className="min-h-screen">
       <Header />
-      
+
       {/* Hero Section */}
-      <section className="bg-primary pt-32 pb-20">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+      <section className="relative bg-primary pt-32 pb-20 overflow-hidden">
+        {heroData.image && (
+          <Image
+            src={heroData.image}
+            alt="Collections Hero"
+            fill
+            className="object-cover opacity-20"
+            priority
+          />
+        )}
+        <div className="relative mx-auto max-w-7xl px-6 lg:px-8 z-10">
           <div
             ref={headerRef}
             className={`text-center ${headerVisible ? 'animate-fade-up' : 'opacity-0'}`}
           >
             <h1 className="text-4xl font-light tracking-wide text-primary-foreground md:text-6xl">
-              Collections
+              {heroData.title}
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-sm font-light leading-relaxed text-primary-foreground/70">
-              Explore our carefully curated collections, each telling a unique story 
-              through fabric, form, and artistic vision.
+              {heroData.subtitle}
             </p>
           </div>
         </div>
@@ -61,16 +86,14 @@ function CollectionRow({
   return (
     <div
       ref={ref}
-      className={`grid items-center gap-8 md:grid-cols-2 md:gap-16 ${
-        isVisible ? 'animate-fade-up' : 'opacity-0'
-      }`}
+      className={`grid items-center gap-8 md:grid-cols-2 md:gap-16 ${isVisible ? 'animate-fade-up' : 'opacity-0'
+        }`}
     >
       {/* Image */}
       <Link
         href={`/collections/${collection.id}`}
-        className={`image-hover-zoom group relative aspect-[4/5] overflow-hidden ${
-          isEven ? 'md:order-1' : 'md:order-2'
-        }`}
+        className={`image-hover-zoom group relative aspect-[4/5] overflow-hidden ${isEven ? 'md:order-1' : 'md:order-2'
+          }`}
       >
         <Image
           src={collection.image || "/placeholder.svg"}

@@ -4,7 +4,19 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useScrollAnimation } from '@/hooks/use-scroll-animation'
 
-const collections = [
+interface FeaturedData {
+  headerBadge?: string
+  headerTitle?: string
+  headerDesc?: string
+  collections?: {
+    id: string
+    name: string
+    description: string
+    image: string
+  }[]
+}
+
+const defaultCollections = [
   {
     id: 'mens-trends',
     name: "Men's Trends",
@@ -25,8 +37,10 @@ const collections = [
   },
 ]
 
-export function FeaturedCollections() {
+export function FeaturedCollections({ data }: { data?: FeaturedData }) {
   const [headerRef, headerVisible] = useScrollAnimation<HTMLDivElement>()
+
+  const activeCollections = data?.collections?.length === 3 ? data.collections : defaultCollections
 
   return (
     <section className="bg-background py-24 md:py-32">
@@ -37,21 +51,20 @@ export function FeaturedCollections() {
           className={`mb-16 text-center ${headerVisible ? 'animate-fade-up' : 'opacity-0'}`}
         >
           <span className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
-            Featured
+            {data?.headerBadge || "Featured"}
           </span>
           <h2 className="mt-4 text-3xl font-light tracking-wide text-foreground md:text-5xl">
-            Our Collections
+            {data?.headerTitle || "Our Collections"}
           </h2>
           <p className="mx-auto mt-6 max-w-2xl text-sm font-light leading-relaxed text-muted-foreground">
-            Explore our carefully curated collections, each telling a unique story
-            through fabric, form, and artistic vision.
+            {data?.headerDesc || "Explore our carefully curated collections, each telling a unique story through fabric, form, and artistic vision."}
           </p>
         </div>
 
         {/* Collections Grid */}
         <div className="grid gap-8 md:grid-cols-3">
-          {collections.map((collection, index) => (
-            <CollectionCard key={collection.id} collection={collection} index={index} />
+          {activeCollections.map((collection, index) => (
+            <CollectionCard key={index} collection={collection} index={index} />
           ))}
         </div>
 
@@ -73,7 +86,7 @@ function CollectionCard({
   collection,
   index,
 }: {
-  collection: (typeof collections)[0]
+  collection: { id?: string, name: string, description: string, image: string }
   index: number
 }) {
   const [ref, isVisible] = useScrollAnimation<HTMLDivElement>()
@@ -84,7 +97,7 @@ function CollectionCard({
       className={`group ${isVisible ? `animate-fade-up delay-${(index + 1) * 200}` : 'opacity-0'}`}
       style={{ animationDelay: `${index * 150}ms` }}
     >
-      <Link href={`/collections/${collection.id}`}>
+      <Link href={collection.id ? `/collections/${collection.id}` : '#'}>
         <div className="image-hover-zoom relative aspect-[3/4] overflow-hidden">
           <Image
             src={collection.image || "/placeholder.svg"}
