@@ -4,11 +4,12 @@ import SiteContent from '@/lib/models/SiteContent'
 
 export async function GET(
     request: Request,
-    { params }: { params: { section: string } }
+    { params }: { params: Promise<{ section: string }> }
 ) {
     try {
+        const { section } = await params
         await connectToDatabase()
-        const content = await SiteContent.findOne({ section: params.section })
+        const content = await SiteContent.findOne({ section })
         return NextResponse.json(content ? content.data : {})
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 })
@@ -17,16 +18,17 @@ export async function GET(
 
 export async function POST(
     request: Request,
-    { params }: { params: { section: string } }
+    { params }: { params: Promise<{ section: string }> }
 ) {
     try {
+        const { section } = await params
         await connectToDatabase()
 
         // Accept pure JSON payloads for maximum flexibility with nested arrays
         const payload = await request.json()
 
         const updatedContent = await SiteContent.findOneAndUpdate(
-            { section: params.section },
+            { section },
             { $set: { data: payload } },
             { new: true, upsert: true }
         )
