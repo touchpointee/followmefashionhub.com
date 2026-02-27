@@ -1,4 +1,4 @@
-import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'
+import React from 'react'
 import { AdminSidebar } from './admin-sidebar'
 
 export const metadata = {
@@ -11,19 +11,20 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   return (
-    <SidebarProvider>
+    <div className="flex h-screen overflow-hidden bg-slate-50">
       <AdminSidebar />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger className="-ml-1" />
-          <div className="w-full flex justify-between items-center">
-            <h1 className="text-lg font-semibold">Admin Panel</h1>
-          </div>
+      <div className="flex flex-col flex-1 overflow-hidden">
+        {/* Top bar */}
+        <header className="flex h-14 shrink-0 items-center border-b border-slate-200 bg-white px-6 shadow-sm">
+          <h1 className="text-base font-semibold text-slate-700 tracking-tight">Admin Panel</h1>
         </header>
-        <main className="flex flex-1 flex-col gap-4 p-4 md:p-6 lg:p-8 max-w-7xl w-full mx-auto">
-          {children}
+        {/* Page content */}
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+          <div className="max-w-7xl mx-auto w-full">
+            {children}
+          </div>
         </main>
-      </SidebarInset>
-    </SidebarProvider>
+      </div>
+    </div>
   )
 }

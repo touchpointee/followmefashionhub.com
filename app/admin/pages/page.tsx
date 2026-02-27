@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -74,11 +75,21 @@ function PagesSettings() {
         journalHero: null,
     })
 
+    // LEGAL PAGES STATE
+    const [legalData, setLegalData] = useState({
+        privacy: '',
+        terms: '',
+    })
+
     useEffect(() => {
         async function loadData() {
             try {
-                const phRes = await fetch('/api/content/pageHeroes')
+                const [phRes, lpRes] = await Promise.all([
+                    fetch('/api/content/pageHeroes'),
+                    fetch('/api/content/legalPages')
+                ])
                 if (phRes.ok) { const d = await phRes.json(); if (Object.keys(d).length > 0) setPageHeroesData(p => ({ ...p, ...d })) }
+                if (lpRes.ok) { const d = await lpRes.json(); if (Object.keys(d).length > 0) setLegalData(p => ({ ...p, ...d })) }
             } catch (e) {
                 console.error('Failed to load content', e)
             }
@@ -113,6 +124,13 @@ function PagesSettings() {
         }, 'Page Heroes updated successfully!')
     }
 
+    const handleLegalSubmit = (e: React.FormEvent) => {
+        e.preventDefault()
+        wrapSubmit(async () => {
+            await saveSection('legalPages', legalData)
+        }, 'Legal Pages updated successfully!')
+    }
+
     return (
         <div className="flex flex-col gap-6">
             <div>
@@ -125,6 +143,7 @@ function PagesSettings() {
             <Tabs value={currentTab} onValueChange={(val) => router.push(`/admin/pages?tab=${val}`)} className="w-full">
                 <TabsList className="mb-4 flex flex-wrap h-auto gap-2">
                     <TabsTrigger value="pageHeroes">Page Heroes</TabsTrigger>
+                    <TabsTrigger value="legal">Legal Pages</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="pageHeroes">
@@ -172,6 +191,40 @@ function PagesSettings() {
                                 })}
                             </CardContent>
                             <CardFooter><Button type="submit" disabled={loading}>Save Page Heroes</Button></CardFooter>
+                        </form>
+                    </Card>
+                </TabsContent>
+
+                <TabsContent value="legal">
+                    <Card>
+                        <form onSubmit={handleLegalSubmit}>
+                            <CardHeader>
+                                <CardTitle>Legal Pages</CardTitle>
+                                <CardDescription>Manage the content for the Privacy Policy and Terms of Service pages.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="space-y-2">
+                                    <Label>Privacy Policy</Label>
+                                    <Textarea
+                                        value={legalData.privacy}
+                                        onChange={(e) => setLegalData({ ...legalData, privacy: e.target.value })}
+                                        className="min-h-[200px]"
+                                    />
+                                    <p className="text-xs text-muted-foreground">This content is displayed on the /privacy page.</p>
+                                </div>
+                                <div className="space-y-2 pt-4 border-t">
+                                    <Label>Terms of Service</Label>
+                                    <Textarea
+                                        value={legalData.terms}
+                                        onChange={(e) => setLegalData({ ...legalData, terms: e.target.value })}
+                                        className="min-h-[200px]"
+                                    />
+                                    <p className="text-xs text-muted-foreground">This content is displayed on the /terms page.</p>
+                                </div>
+                            </CardContent>
+                            <CardFooter>
+                                <Button type="submit" disabled={loading}>Save Legal Pages</Button>
+                            </CardFooter>
                         </form>
                     </Card>
                 </TabsContent>

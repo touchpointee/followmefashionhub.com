@@ -141,13 +141,29 @@ function HomepagePortions() {
     })
     const [galleryFiles, setGalleryFiles] = useState<(File | null)[]>([null, null, null, null, null, null])
 
+    // 8. FOOTER STATE
+    const [footerData, setFooterData] = useState({
+        brandDescription: 'A luxury fashion brand dedicated to contemporary elegance and timeless design. We believe in the power of fashion to inspire confidence and self-expression.',
+        socialLinks: {
+            instagram: 'https://instagram.com',
+            facebook: 'https://facebook.com',
+            twitter: 'https://twitter.com'
+        },
+        copyrightText: 'Follow Me Fashion Hub. All rights reserved.',
+        bottomLinks: {
+            privacyLink: '/privacy',
+            termsLink: '/terms'
+        }
+    })
+
     useEffect(() => {
         async function loadData() {
             try {
-                const [hRes, aRes, fRes, bRes, lRes, jRes, gRes] = await Promise.all([
+                const [hRes, aRes, fRes, bRes, lRes, jRes, gRes, footerRes] = await Promise.all([
                     fetch('/api/content/hero'), fetch('/api/content/about'),
                     fetch('/api/content/featured'), fetch('/api/content/visualBreak'),
-                    fetch('/api/content/lookbook'), fetch('/api/content/journal'), fetch('/api/content/gallery')
+                    fetch('/api/content/lookbook'), fetch('/api/content/journal'), fetch('/api/content/gallery'),
+                    fetch('/api/content/footer')
                 ])
 
                 if (hRes.ok) { const d = await hRes.json(); if (Object.keys(d).length > 0) setHeroData(p => ({ ...p, ...d })) }
@@ -157,6 +173,7 @@ function HomepagePortions() {
                 if (lRes.ok) { const d = await lRes.json(); if (Object.keys(d).length > 0) setLookbookData(p => ({ ...p, ...d })) }
                 if (jRes.ok) { const d = await jRes.json(); if (Object.keys(d).length > 0) setJournalData(p => ({ ...p, ...d })) }
                 if (gRes.ok) { const d = await gRes.json(); if (Object.keys(d).length > 0) setGalleryData(p => ({ ...p, ...d })) }
+                if (footerRes.ok) { const d = await footerRes.json(); if (Object.keys(d).length > 0) setFooterData(p => ({ ...p, ...d })) }
             } catch (e) {
                 console.error('Failed to load content', e)
             }
@@ -244,6 +261,13 @@ function HomepagePortions() {
         }, 'Image Gallery updated successfully!')
     }
 
+    const handleFooterSubmit = (e: React.FormEvent) => {
+        e.preventDefault()
+        wrapSubmit(async () => {
+            await saveSection('footer', footerData)
+        }, 'Footer updated successfully!')
+    }
+
 
     return (
         <div className="flex flex-col gap-6">
@@ -263,6 +287,7 @@ function HomepagePortions() {
                     <TabsTrigger value="lookbook">Lookbook</TabsTrigger>
                     <TabsTrigger value="journal">Journal</TabsTrigger>
                     <TabsTrigger value="gallery">Gallery</TabsTrigger>
+                    <TabsTrigger value="footer">Footer</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="hero">
@@ -484,6 +509,58 @@ function HomepagePortions() {
                                 </div>
                             </CardContent>
                             <CardFooter><Button type="submit" disabled={loading}>Save Gallery Changes</Button></CardFooter>
+                        </form>
+                    </Card>
+                </TabsContent>
+
+                <TabsContent value="footer">
+                    <Card>
+                        <form onSubmit={handleFooterSubmit}>
+                            <CardHeader>
+                                <CardTitle>Global Footer</CardTitle>
+                                <CardDescription>Update the brand slogan, social links, and copyright text shown at the bottom of the site.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="space-y-2">
+                                    <Label>Brand Description (Under Logo)</Label>
+                                    <Textarea value={footerData.brandDescription} onChange={(e) => setFooterData(prev => ({ ...prev, brandDescription: e.target.value }))} className="h-24" />
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t pt-4">
+                                    <h3 className="col-span-full font-medium">Social Connections</h3>
+                                    <div className="space-y-2">
+                                        <Label>Instagram Link</Label>
+                                        <Input value={footerData.socialLinks.instagram} onChange={(e) => setFooterData(prev => ({ ...prev, socialLinks: { ...prev.socialLinks, instagram: e.target.value } }))} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Facebook Link</Label>
+                                        <Input value={footerData.socialLinks.facebook} onChange={(e) => setFooterData(prev => ({ ...prev, socialLinks: { ...prev.socialLinks, facebook: e.target.value } }))} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Twitter Link</Label>
+                                        <Input value={footerData.socialLinks.twitter} onChange={(e) => setFooterData(prev => ({ ...prev, socialLinks: { ...prev.socialLinks, twitter: e.target.value } }))} />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t pt-4">
+                                    <h3 className="col-span-full font-medium">Copyright & Bottom Links</h3>
+                                    <div className="space-y-2 md:col-span-1">
+                                        <Label>Copyright Text</Label>
+                                        <Input value={footerData.copyrightText} onChange={(e) => setFooterData(prev => ({ ...prev, copyrightText: e.target.value }))} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Privacy Link URL</Label>
+                                        <Input value={footerData.bottomLinks.privacyLink} onChange={(e) => setFooterData(prev => ({ ...prev, bottomLinks: { ...prev.bottomLinks, privacyLink: e.target.value } }))} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Terms Link URL</Label>
+                                        <Input value={footerData.bottomLinks.termsLink} onChange={(e) => setFooterData(prev => ({ ...prev, bottomLinks: { ...prev.bottomLinks, termsLink: e.target.value } }))} />
+                                    </div>
+                                </div>
+                            </CardContent>
+                            <CardFooter>
+                                <Button type="submit" disabled={loading}>Save Footer Changes</Button>
+                            </CardFooter>
                         </form>
                     </Card>
                 </TabsContent>
