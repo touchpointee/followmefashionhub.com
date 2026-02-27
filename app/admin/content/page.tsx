@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -55,7 +55,7 @@ function ImagePreview({ file, currentUrl }: { file: File | null, currentUrl?: st
     )
 }
 
-export default function ContentManagementPage() {
+function ContentManagement() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const currentTab = searchParams.get('tab') || 'hero'
@@ -570,5 +570,13 @@ export default function ContentManagementPage() {
 
             </Tabs>
         </div>
+    )
+}
+
+export default function ContentManagementPage() {
+    return (
+        <Suspense fallback={<div>Loading content management...</div>}>
+            <ContentManagement />
+        </Suspense>
     )
 }
